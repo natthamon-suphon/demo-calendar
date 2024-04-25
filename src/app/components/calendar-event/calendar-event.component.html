@@ -1,0 +1,8 @@
+<h1>February 2022</h1>
+<p>Holidays and Daily Observances in the United States</p>
+<ul cdkDropList [cdkDropListData]="events" class="event-list" (cdkDropListDropped)="dropEvent($event)" [cdkDropListConnectedTo]="listIds">
+  <li *ngFor="let day of events; trackBy: trackByDay" cdkDropList #dayList="cdkDropList" [cdkDropListData]="day.events" (cdkDropListDropped)="dropSpan($event, day)" [cdkDropListConnectedTo]="listIds">
+    <time [attr.datetime]="day.date">{{ day.day }}</time>
+    <span *ngFor="let event of day.events; trackBy: trackByEvent" cdkDrag>{{ event.name }}</span>
+  </li>
+</ul>
