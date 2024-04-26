@@ -1,7 +1,6 @@
-import { Component, ViewChildren, QueryList, AfterViewInit } from '@angular/core';
-import {CdkDragDrop, moveItemInArray, transferArrayItem, CdkDropList, DragDropModule} from '@angular/cdk/drag-drop';
+import { Component } from '@angular/core';
+import {CdkDragDrop, DragDropModule, moveItemInArray, transferArrayItem} from '@angular/cdk/drag-drop';
 import {CommonModule} from "@angular/common";
-
 
 
 @Component({
@@ -11,31 +10,14 @@ import {CommonModule} from "@angular/common";
   templateUrl: './calendar-event.component.html',
   styleUrl: './calendar-event.component.scss'
 })
-  export class CalendarEventComponent implements AfterViewInit {
-
-  constructor() {
-    this.dropLists = {} as QueryList<CdkDropList>; // This is generally not recommended for @ViewChildren
-    this.events = this.generateDays(2022, 2);
-  }
-
+export class CalendarEventComponent {
   events = [
     { id: 1, day: '1', date: '2022-02-01', events: [{ id: 101, name: 'Dark Chocolate Day' }, { id: 102, name: 'Something Else Day' }] },
     { id: 2, day: '2', date: '2022-02-02', events: [{ id: 201, name: 'Groundhog Day' }] },
-    // More days...
   ];
 
-   predefinedEvents: { day: number, events: Event[] }[] = [
-    { day: 1, events: [{ id: 101, name: 'Dark Chocolate Day' }, { id: 102, name: 'Something Else Day' }] },
-    { day: 2, events: [{ id: 201, name: 'Groundhog Day' }] },
-    // Add additional days with their respective events here...
-  ];
-
-  @ViewChildren(CdkDropList) dropLists: QueryList<CdkDropList>;
-
-  listIds: string[] = [];
-
-  ngAfterViewInit() {
-    this.listIds = this.dropLists.toArray().map(list => list.id);
+  constructor() {
+    this.generateMonthlyEvents(2024, 4);
   }
 
   trackByDay(index: number, item: any): number {
@@ -47,46 +29,31 @@ import {CommonModule} from "@angular/common";
   }
 
   dropEvent(event: CdkDragDrop<any[]>): void {
+    console.log('Dropped from:', event.previousContainer.id, 'to:', event.container.id);
     if (event.previousContainer === event.container) {
       moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
     } else {
-      transferArrayItem(event.previousContainer.data, event.container.data,
-        event.previousIndex, event.currentIndex);
+      transferArrayItem(event.previousContainer.data,
+        event.container.data,
+        event.previousIndex,
+        event.currentIndex);
     }
   }
 
-  dropSpan(event: CdkDragDrop<any[]>, day: any): void {
-    this.dropEvent(event);
+  get connectedDropListsIds(): string[] {
+    return this.events.map(day => 'drop-list-' + day.id);
   }
 
-  generateDays(year: number, month: number): DayEvents[] {
+  generateMonthlyEvents(year: number, month: number) {
     const daysInMonth = new Date(year, month, 0).getDate();
-    const monthEvents: DayEvents[] = [];
-
     for (let day = 1; day <= daysInMonth; day++) {
-      const date = new Date(year, month - 1, day);
-      const formattedDate = date.toISOString().substring(0, 10);
-      const dayEvents = this.predefinedEvents.find(e => e.day === day)?.events || [];
-      monthEvents.push({
+      this.events.push({
         id: day,
         day: day.toString(),
-        date: formattedDate,
-        events: dayEvents
+        date: `${month}-${('0' + day).slice(-2)}`,  // Ensures the date is in YYYY-MM-DD format
+        events: []  // Start with an empty array of events
       });
     }
-
-    return monthEvents;
-  }
+}
 }
 
-interface Event {
-  id: number;
-  name: string;
-}
-
-interface DayEvents {
-  id: number;
-  day: string;
-  date: string;
-  events: Event[];
-}
