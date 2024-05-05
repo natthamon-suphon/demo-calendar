@@ -1,10 +1,7 @@
 import { Routes } from '@angular/router';
-import {CalendarEventComponent} from "./components/calendar-event/calendar-event.component";
+import {WeeklyCalendarComponent} from "./components/weekly-calendar/weekly-calendar.component";
 
 export const routes: Routes = [
-  {
-    path: "calendar-event",
-    component: CalendarEventComponent,
-    canActivate: [],
-  },
+  {path: '', redirectTo: 'weekly-calendar-note', pathMatch: 'full' },
+  {path: 'weekly-calendar-note', component: WeeklyCalendarComponent },
 ];
